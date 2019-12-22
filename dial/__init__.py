@@ -1,12 +1,14 @@
 import requests
 import xmltodict
 import re
+from urllib.parse import unquote
 
 class DIscoveryAndLaunch:
 
     def __init__(self, address: str):
         self.bind(address)
-        self.active_app = None
+        self.instance_url = None
+        self.refresh_url = None
 
     def bind(self, addr):
         resp = requests.get(addr)
@@ -26,9 +28,29 @@ class DIscoveryAndLaunch:
             json=kwargs,
             headers={'Content-Type':'application/json'}
         )
-        self.active_app = resp.json().get('location')
+        self.refresh_url = unquote(resp.text)
+        self.instance_url = resp.headers.get('location')
 
     def kill_app(self):
-        resp = requests.delete(self.active_app)
+        '''
+        This will kill any active application tracked by this instance if one exists and will return True if successful otherwise it will return False.
+        '''
+        if not self.instance_url:
+            raise Exception("There is no instance found to kill.")
+        resp = requests.delete(self.instance_url)
         if resp.status_code in [200, 204]:
-            self.active_app = None
+            self.instance_url = None
+            self.refresh_url = None
+            return True
+        else:
+            return False
+
+    def refresh_instance(self, inplace=False):
+        resp = requests.post(self.refresh_url)
+        instance_url = resp.headers.get('location')
+        if inplace:
+            self.instance_url = instance_url
+        else:
+            return instance_url
+
+    
