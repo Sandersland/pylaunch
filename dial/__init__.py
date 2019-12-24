@@ -1,7 +1,7 @@
 import requests
 import xmltodict
 import re
-from urllib.parse import unquote
+from urllib.parse import unquote, urlencode
 
 class DIscoveryAndLaunch:
 
@@ -25,7 +25,7 @@ class DIscoveryAndLaunch:
         url = self.address + '/' + app_name
         resp = requests.post(
             url,
-            json=kwargs,
+            params=urlencode(kwargs),
             headers={'Content-Type':'application/json'}
         )
         self.refresh_url = unquote(resp.text)
