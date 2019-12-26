@@ -7,9 +7,12 @@ setup(
     name='dial',
     packages=['dial'],
     description=long_description,
-    version='0.0.4',
+    version='0.0.5',
     url='https://github.com/Sandersland.dial',
     author="Steffen Andersland",
     author_email='stefandersland@gmail.com',
-    keywords=['dial']
+    keywords=['dial'],
+    install_requires=[
+        'git+ssh://git@github.com/Sandersland/ssdp.git'
+    ]
 )
