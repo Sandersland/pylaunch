@@ -23,13 +23,9 @@ class DIscoveryAndLaunch:
     
     def launch_app(self, app_name, callback=None, **kwargs):
         url = self.address + '/' + app_name
-        resp = requests.post(
-            url,
-            data=urlencode(kwargs).encode('utf8'),
-            headers={'Content-Type':'application/json'}
-        )
-        print(resp.url)
-        print(resp.status_code)
+        data = unquote(urlencode(kwargs))
+        headers = {'Content-Type':'text/plain; charset=utf-8'} if kwargs else {'Content-Length': "0"}
+        resp = requests.post(url, data=data, headers=headers)
         self.refresh_url = unquote(resp.text)
         self.instance_url = resp.headers.get('location')
         callback(resp) if callback else None
@@ -56,19 +52,6 @@ class DIscoveryAndLaunch:
         else:
             return instance_url
 
-if __name__ == '__main__':
-    from time import sleep
-    from ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
-    SimpleServiceDiscoveryProtocol.settimeout(3)
-    devices = SimpleServiceDiscoveryProtocol(ST_DIAL).broadcast()
-    loc = devices[0].headers.get('location')
-    d = DIscoveryAndLaunch(loc)
-    d.launch_app('YouTube', v="uigUeW05HSM")
-    print(d.instance_url)
-    print(d.refresh_url)
-    # requests.post("http://192.168.0.7:8060/dial_extra_data/YouTube", json={"v": "uigUeW05HSM"})
 
-    
-    
 
     
