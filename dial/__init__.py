@@ -21,15 +21,18 @@ class DIscoveryAndLaunch:
                 k = '_'.join(re.sub('([a-z])([A-Z])', r'\1 \2', key).split()).lower().replace('-', '_')
                 setattr(self, k, value)
     
-    def launch_app(self, app_name, **kwargs):
+    def launch_app(self, app_name, callback=None, **kwargs):
         url = self.address + '/' + app_name
         resp = requests.post(
             url,
-            params=urlencode(kwargs),
+            data=urlencode(kwargs).encode('utf8'),
             headers={'Content-Type':'application/json'}
         )
+        print(resp.url)
+        print(resp.status_code)
         self.refresh_url = unquote(resp.text)
         self.instance_url = resp.headers.get('location')
+        callback(resp) if callback else None
 
     def kill_app(self):
         '''
@@ -52,5 +55,20 @@ class DIscoveryAndLaunch:
             self.instance_url = instance_url
         else:
             return instance_url
+
+if __name__ == '__main__':
+    from time import sleep
+    from ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
+    SimpleServiceDiscoveryProtocol.settimeout(3)
+    devices = SimpleServiceDiscoveryProtocol(ST_DIAL).broadcast()
+    loc = devices[0].headers.get('location')
+    d = DIscoveryAndLaunch(loc)
+    d.launch_app('YouTube', v="uigUeW05HSM")
+    print(d.instance_url)
+    print(d.refresh_url)
+    # requests.post("http://192.168.0.7:8060/dial_extra_data/YouTube", json={"v": "uigUeW05HSM"})
+
+    
+    
 
     
