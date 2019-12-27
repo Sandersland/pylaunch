@@ -127,3 +127,14 @@ class DIscoveryAndLaunch:
             self.instance_url = instance_url
         else:
             return instance_url
+
+
+if __name__ == '__main__':
+    from xml.etree import ElementTree as ET 
+    devices = discover()
+    address = devices[0].headers.get('location')
+    print(address)
+    xml = requests.get(address).text
+
+    with open('test.xml', 'w', encoding="utf8") as f:
+        f.writelines([x for x in xml.split()])

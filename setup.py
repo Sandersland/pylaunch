@@ -7,7 +7,7 @@ setup(
     name='dial',
     packages=['dial'],
     description=long_description,
-    version='0.0.5',
+    version='0.0.6',
     url='https://github.com/Sandersland.dial',
     author="Steffen Andersland",
     author_email='stefandersland@gmail.com',
