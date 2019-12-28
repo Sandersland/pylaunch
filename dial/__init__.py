@@ -132,13 +132,3 @@ class DIscoveryAndLaunch:
             self.instance_url = instance_url
         else:
             return instance_url
-
-if __name__ == '__main__':
-    devices = discover()
-    
-    address = devices[0].headers.get('location')
-    print(address)
-    with DIscoveryAndLaunch(address) as dial:
-        status = dial.get_app_status('YouTube')
-        print(status)
-        print(dial.__dict__)
