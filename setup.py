@@ -7,12 +7,13 @@ setup(
     name='dial',
     packages=['dial'],
     description=long_description,
-    version='0.0.6',
+    version='0.0.7',
     url='https://github.com/Sandersland.dial',
     author="Steffen Andersland",
     author_email='stefandersland@gmail.com',
     keywords=['dial'],
     install_requires=[
-        'git+ssh://git@github.com/Sandersland/ssdp.git'
+        'git+http://git@github.com/Sandersland/ssdp.git',
+        'git+http://git@github.com/Sandersland/XMLToolBelt.git'
     ]
 )

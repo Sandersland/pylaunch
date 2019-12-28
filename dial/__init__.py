@@ -1,8 +1,8 @@
 import requests
-import xmltodict
-import re
+from re import sub
 from urllib.parse import unquote, urlencode
 from ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
+from XMLToolBelt import XMLFile
 
 
 def discover(timeout:int=3) -> list:
@@ -55,13 +55,19 @@ class DIscoveryAndLaunch:
         '''
         resp = self.request.get(addr)
         self.address = resp.headers.get('Application-URL')
-        xml = xmltodict.parse(resp.text)
-        device_info = xml['root']['device']
+        xml = XMLFile(resp.text)
+        key = lambda element: '_'.join(sub('([a-z])([A-Z])', r'\1 \2', element).split()).lower().replace('-', '_')
+        value = lambda element: xml.find(element).text
+        tag_name = lambda element: element.tag.replace(xml.namespace, '')
 
-        for key, value in device_info.items():
-            if isinstance(value, str):
-                k = '_'.join(re.sub('([a-z])([A-Z])', r'\1 \2', key).split()).lower().replace('-', '_')
-                setattr(self, k, value)
+        for element in [tag_name(el) for el in xml.find('device')]:
+            try:
+                k = key(element)
+                v = value(element)
+            except TypeError as e:
+                print (e)
+            finally:
+                setattr(self, k, v) if v != "\n" else None
     
     def launch_app(self, app_name, callback=None, **kwargs) -> None:
         '''
@@ -106,12 +112,11 @@ class DIscoveryAndLaunch:
         '''
         url = self._build_app_url(app_name)
         resp = self.request.get(url, headers={'Content-Type': 'text/plain'})
-        xml = xmltodict.parse(resp.text)
-        service = xml['service']
+        xml = XMLFile(resp.text)
         return {
-            'version': service['@dialVer'],
-            'name': service['name'],
-            'state': service['state']
+            'version': xml.find('service').attrib.get('dialVer'),
+            'name': xml.find('name').text,
+            'state': xml.find('state').text
         }
 
     def refresh_instance(self, inplace:bool=False)-> str:
@@ -128,13 +133,12 @@ class DIscoveryAndLaunch:
         else:
             return instance_url
 
-
 if __name__ == '__main__':
-    from xml.etree import ElementTree as ET 
     devices = discover()
+    
     address = devices[0].headers.get('location')
     print(address)
-    xml = requests.get(address).text
-
-    with open('test.xml', 'w', encoding="utf8") as f:
-        f.writelines([x for x in xml.split()])
+    with DIscoveryAndLaunch(address) as dial:
+        status = dial.get_app_status('YouTube')
+        print(status)
+        print(dial.__dict__)
