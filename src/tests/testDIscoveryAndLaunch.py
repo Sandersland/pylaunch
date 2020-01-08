@@ -2,7 +2,7 @@ from src.dial import DIscoveryAndLaunch
 from unittest import TestCase
 
 
-class testDIscoveryAndLaunch(unittest.TestCase):
+class testDIscoveryAndLaunch(TestCase):
     
     def setUp(self):
         pass

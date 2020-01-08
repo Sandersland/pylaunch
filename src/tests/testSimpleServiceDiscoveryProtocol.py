@@ -1,7 +1,7 @@
-import unittest
+from unittest import TestCase
 from src.ssdp import SimpleServiceDiscoveryProtocol, ST_ROKU, DiscoveryMessage, HTTPResponse
 
-class TestSimpleServiceDiscoveryProtocol(unittest.TestCase):
+class TestSimpleServiceDiscoveryProtocol(TestCase):
 
     def setUp(self):
         self.ssdp = SimpleServiceDiscoveryProtocol(ST_ROKU)
