@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name='dial',
-    packages=['dial'],
+    name='pylaunch',
+    py_modules=['dial','ssdp']
     description=long_description,
-    version='0.0.71',
+    package_dir={'':'src'},
+    version='0.0.99',
     url='https://github.com/Sandersland.dial',
     author="Steffen Andersland",
     author_email='stefandersland@gmail.com',
     keywords=['dial'],
-    install_requires=[
-    ]
+    install_requires=['requests']
 )

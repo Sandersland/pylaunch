@@ -1,5 +1,6 @@
-from dial import DIscoveryAndLaunch
+from src.dial import DIscoveryAndLaunch
 from unittest import TestCase
+
 
 class testDIscoveryAndLaunch(unittest.TestCase):
     
@@ -8,4 +9,5 @@ class testDIscoveryAndLaunch(unittest.TestCase):
     
     def tearDown(self):
         pass
+
 

@@ -2,7 +2,7 @@ import requests
 from re import sub
 from urllib.parse import unquote, urlencode
 from ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
-from XMLToolBelt import XMLFile
+from xmlparse import XMLFile
 
 
 def discover(timeout:int=3) -> list:
