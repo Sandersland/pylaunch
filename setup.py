@@ -9,7 +9,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     package_dir={'':'src'},
-    version='0.1.0',
+    version='0.1.1',
     url='https://github.com/Sandersland/pylaunch',
     author="Steffen Andersland",
     author_email='stefandersland@gmail.com',
