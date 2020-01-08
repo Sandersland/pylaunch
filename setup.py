@@ -10,7 +10,7 @@ setup(
     long_description_content_type="text/markdown",
     package_dir={'':'src'},
     version='0.0.99',
-    url='https://github.com/Sandersland.dial',
+    url='github.com/Sandersland/pylaunch',
     author="Steffen Andersland",
     author_email='stefandersland@gmail.com',
     keywords=['dial'],
@@ -19,5 +19,11 @@ setup(
         "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: Microsoft :: Windows :: Windows 10"
-    ]
+    ],
+    extras_require = {
+        "dev": [
+            "nose==1.3.7",
+            "twine==3.1.1"
+        ]
+    }
 )
