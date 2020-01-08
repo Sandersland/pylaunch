@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='pylaunch',
-    py_modules=['dial','ssdp']
+    py_modules=['dial','ssdp'],
     description=long_description,
     package_dir={'':'src'},
     version='0.0.99',
