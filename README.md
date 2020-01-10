@@ -1,3 +1,3 @@
 # pylaunch
 
-http://www.dial-multiscreen.org/
+https://www.dial-multiscreen.org/
