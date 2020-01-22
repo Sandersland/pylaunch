@@ -5,11 +5,10 @@ with open("README.md", "r") as fh:
 
 setup(
     name='pylaunch',
-    py_modules=['dial','ssdp'],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    package_dir={'':'src'},
-    version='0.1.1',
+    package_dir={'':'pylaunch'},
+    version='0.1.2',
     url='https://github.com/Sandersland/pylaunch',
     author="Steffen Andersland",
     author_email='stefandersland@gmail.com',

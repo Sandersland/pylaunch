@@ -1,4 +1,4 @@
-from src.dial import XMLFile
+from pylaunch.dial import XMLFile
 from unittest import TestCase
 
 

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.ssdp import SimpleServiceDiscoveryProtocol, ST_ROKU, DiscoveryMessage, HTTPResponse
+from pylaunch.ssdp import SimpleServiceDiscoveryProtocol, ST_ROKU, DiscoveryMessage, HTTPResponse
 
 class TestSimpleServiceDiscoveryProtocol(TestCase):
 

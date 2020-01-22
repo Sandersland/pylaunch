@@ -1,4 +1,4 @@
-from src.dial import DIscoveryAndLaunch
+from pylaunch.dial import DIscoveryAndLaunch
 from unittest import TestCase
 
 
