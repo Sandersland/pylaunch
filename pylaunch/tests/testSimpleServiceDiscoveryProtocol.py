@@ -1,5 +1,5 @@
 from unittest import TestCase
-from pylaunch.ssdp import SimpleServiceDiscoveryProtocol, ST_ROKU, DiscoveryMessage, HTTPResponse
+from pylaunch.ssdp import SimpleServiceDiscoveryProtocol, ST_ROKU, DiscoveryMessage
 
 class TestSimpleServiceDiscoveryProtocol(TestCase):
 
@@ -23,7 +23,7 @@ class TestSimpleServiceDiscoveryProtocol(TestCase):
         result = self.ssdp.broadcast()
         self.assertIsInstance(result, list)
         if len(result) > 0:
-            self.assertIsInstance(result[0], HTTPResponse)
+            (self.assertIsInstance(res, dict) for res in result)
         else:
             print('No response from broadcast.')
     
