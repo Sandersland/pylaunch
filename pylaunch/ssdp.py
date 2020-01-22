@@ -1,6 +1,6 @@
 import socket
-import struct
-import json
+from struct import pack
+from json import dumps
 
 ST_ROKU = 'roku:ecp'
 ST_DIAL = 'urn:dial-multiscreen-org:service:dial:1'
@@ -16,7 +16,7 @@ class SimpleServiceDiscoveryProtocol:
         self.message = DiscoveryMessage(self.st)
 
     def broadcast(self) -> list:
-        ttl = struct.pack('b', 1)
+        ttl = pack('b', 1)
         results = []
 
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as s:
@@ -27,8 +27,8 @@ class SimpleServiceDiscoveryProtocol:
             while True:
                 try:
                     data, _ = s.recvfrom(4096)
-                    response = HTTPResponse(data)
-                    results.append(response)
+                    resp = HTTPResponse(data)
+                    results.append(resp)
                 except socket.timeout:
                     break
         return results
@@ -69,13 +69,13 @@ class HTTPResponse(dict):
         for line in response[1:]:
             line = line.split()
             if len(line) == 2:
-                header_name = line[0][:-1]
-                header_value = line[1]
-                self.headers[header_name.lower()] = header_value.lower()
+                header_name = line[0][:-1].replace('-', '_').lower()
+                header_value = line[1].lower()
+                self.headers[header_name] = header_value
 
     @property
     def json(self):
-        return json.dumps(self.__dict__)
+        return dumps(self.__dict__)
 
     def __repr__(self):
         return self.json
