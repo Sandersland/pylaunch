@@ -7,6 +7,7 @@ setup(
     name='pylaunch',
     long_description=long_description,
     long_description_content_type="text/markdown",
+    packages=[''],
     package_dir={'':'pylaunch'},
     version='0.1.2',
     url='https://github.com/Sandersland/pylaunch',
