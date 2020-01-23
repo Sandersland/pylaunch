@@ -96,7 +96,7 @@ class Controller:
             self.instance_url = resp.headers.get('location')
             self.refresh_url = unquote(resp.text)
             callback(resp) if callback else None
-        elif resp.status_code = 404:
+        elif resp.status_code == 404:
             raise AppNotFoundError(f'No application found with name {app_name}')
         else:
             resp.raise_for_status()
