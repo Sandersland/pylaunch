@@ -3,7 +3,12 @@ from re import sub
 from urllib.parse import unquote, urlencode
 from ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
 from xmlparse import XMLFile
+from collections import namedtuple
 
+FirstScreenDevice = namedtuple('FirstScreenDevice', 'cache_control st usn location wakeup')
+
+class AppNotFoundError(Exception):
+    pass
 
 def discover(timeout:int=3) -> list:
     '''
@@ -11,13 +16,16 @@ def discover(timeout:int=3) -> list:
     '''
     SimpleServiceDiscoveryProtocol.settimeout(timeout)
     ssdp = SimpleServiceDiscoveryProtocol(ST_DIAL)
-    return ssdp.broadcast()
+
+    resp = ssdp.broadcast()
+    return [FirstScreenDevice(**r.headers) for r in resp]
 
 
-class DIscoveryAndLaunch:
+class Controller:
 
-    def __init__(self, address: str):
-        self.bind(address)
+    def __init__(self, device):
+        self.device = device
+        self.bind(device.location)
         self.instance_url = None
         self.refresh_url = None
 
@@ -30,6 +38,12 @@ class DIscoveryAndLaunch:
 
     def __exit__(self, *args):
         self._session.close()
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.device.location!r})'
+
+    def __str__(self):
+        return f'{self.friendly_name} ({self.address})'
 
     @property
     def request(self):
@@ -77,13 +91,16 @@ class DIscoveryAndLaunch:
         data = unquote(urlencode(kwargs))
         headers = {'Content-Type':'text/plain; charset=utf-8'} if kwargs else {'Content-Length': "0"}
         resp = self.request.post(url, data=data, headers=headers)
-        if resp.status_code in [200, 204]:
-            self.refresh_url = unquote(resp.text)
+        
+        if resp.status_code < 300:
             self.instance_url = resp.headers.get('location')
+            self.refresh_url = unquote(resp.text)
+            callback(resp) if callback else None
+        elif resp.status_code = 404:
+            raise AppNotFoundError(f'No application found with name {app_name}')
         else:
-            raise Exception(f"{app_name} is not found, is it installed onto the device?")
-        callback(resp) if callback else None
-
+            resp.raise_for_status()
+        
     def kill_app(self, app_name=None, callback=None) -> None:
         '''
         This will kill any active application tracked by this 

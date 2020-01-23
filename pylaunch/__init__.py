@@ -1,1 +1,1 @@
-from pylaunch import dial
+from pylaunch.dial import discover, Controller
