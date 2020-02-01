@@ -1,5 +1,16 @@
-from re import match
+from re import match, sub
 from xml.etree import ElementTree
+
+
+def normalize(xml, element):
+    key = lambda element: element.tag.replace(xml.namespace, '')
+    truther = lambda x: {'true': True, 'false': False}.get(x,x)
+    name = '_'.join(
+        sub('([a-z])([A-Z])', r'\1 \2', key(element)).split()
+    ).lower().replace('-', '_')
+    value = truther(element.text)
+    return (name, value)
+
 
 class XMLFile:
     def __init__(self, xml_string):

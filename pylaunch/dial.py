@@ -129,6 +129,8 @@ class Controller:
         '''
         url = self._build_app_url(app_name)
         resp = self.request.get(url, headers={'Content-Type': 'text/plain'})
+        if resp.status_code == 404:
+            raise AppNotFoundError(f'No application found with name {app_name}')
         xml = XMLFile(resp.text)
         return {
             'version': xml.find('service').attrib.get('dialVer'),

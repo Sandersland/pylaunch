@@ -9,11 +9,11 @@ setup(
     long_description_content_type="text/markdown",
     packages=[''],
     package_dir={'':'pylaunch'},
-    version='0.1.3',
+    version='0.1.4',
     url='https://github.com/Sandersland/pylaunch',
     author="Steffen Andersland",
     author_email='stefandersland@gmail.com',
-    keywords=['dial'],
+    keywords=['dial', 'roku'],
     install_requires=['requests'],
     classifiers=[
         "Programming Language :: Python :: 3.7",
