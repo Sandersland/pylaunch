@@ -49,7 +49,7 @@ class Application:
             }
             callback(results)
 
-def discover(timeout=3) -> list:
+def discover(timeout:int=3) -> list:
     '''
     Scans the network for roku devices.
     '''

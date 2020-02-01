@@ -17,7 +17,7 @@ class XMLFile:
         self._root = ElementTree.fromstring(xml_string)
 
     def __getitem__(self, key):
-            return self.__dict__[key]
+        return self.__dict__[key]
 
     @property
     def namespace(self):

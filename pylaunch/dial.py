@@ -3,9 +3,7 @@ from re import sub
 from urllib.parse import unquote, urlencode
 from ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
 from xmlparse import XMLFile
-from collections import namedtuple
 
-FirstScreenDevice = namedtuple('FirstScreenDevice', 'cache_control st usn location wakeup')
 
 class AppNotFoundError(Exception):
     pass
@@ -14,11 +12,10 @@ def discover(timeout:int=3) -> list:
     '''
     Scans network for dial compatible devices and returns a list.
     '''
+
     SimpleServiceDiscoveryProtocol.settimeout(timeout)
     ssdp = SimpleServiceDiscoveryProtocol(ST_DIAL)
-
-    resp = ssdp.broadcast()
-    return [FirstScreenDevice(**r.headers) for r in resp]
+    return [resp.headers.get('location') for resp in ssdp.broadcast()]
 
 
 class Controller:
