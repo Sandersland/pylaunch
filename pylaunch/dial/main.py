@@ -5,8 +5,8 @@ from urllib.parse import unquote, urlencode
 from requests import Response
 
 from pylaunch.core import Controller
-from ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
-from xmlparse import XMLFile
+from pylaunch.ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
+from pylaunch.xmlparse import XMLFile
 
 
 class AppNotFoundError(Exception):
