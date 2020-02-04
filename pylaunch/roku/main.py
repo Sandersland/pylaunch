@@ -1,9 +1,9 @@
-from typing import Callable
-import requests
-import re
+from typing import Callable, List
 
+from pylaunch.core import Controller
 from pylaunch.ssdp import ST_ROKU, SimpleServiceDiscoveryProtocol
 from pylaunch.xmlparse import XMLFile, normalize
+
 
 class Application:
     def __init__(self, name, id, type, subtype, version, roku):
@@ -30,14 +30,14 @@ class Application:
     @property
     def icon(self):
         request_url = f'{self.roku.address}/query/icon/{self.id}'
-        response = requests.get(request_url, stream=True)
+        response = self.request.get(request_url, stream=True)
         if str(response.headers['Content-Length']) != '0':
             filetype = response.headers['Content-Type'].split('/')[-1]
             return {'content': response.content, 'filetype': filetype}
 
     def launch(self, callback: Callable[[None], dict]=None, **kwargs) -> None:
         request_url = f'{self.roku.address}/launch/{self.id}'
-        response = requests.post(
+        response = self.request.post(
             request_url,
             params=kwargs,
             headers={'Content-Length':'0'}
@@ -49,7 +49,8 @@ class Application:
             }
             callback(results)
 
-def discover(timeout:int=3) -> list:
+
+def discover(timeout:int=3) -> List['Roku']:
     '''
     Scans the network for roku devices.
     '''
@@ -65,30 +66,19 @@ def discover(timeout:int=3) -> list:
     return results
 
 
-class Roku:
-    def __init__(self, address):
+class Roku(Controller):
+    def __init__(self, address: str):
         self.bind(address)
         self.apps = self.query_apps()
 
-    def __getitem__(self, prop):
-        return self.__getattribute__(prop)
-
-    def __enter__(self):
-        self._session = requests.Session()
-        return self
-
-    def __exit__(self, *args):
-        self._session.close()
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.address!r})'
-
-    @property
-    def request(self):
-        try:
-            return self._session
-        except:
-            return requests
+    def bind(self, address: str) -> None:
+        self.address = address
+        request_url = f'{self.address}/query/device-info'
+        response = self.request.get(request_url)
+        xml = XMLFile(response.text)
+        for element in xml.find('device-info'):
+            key, value = normalize(xml, element)
+            setattr(self, key, value)
 
     @property
     def active_app(self):
@@ -105,16 +95,7 @@ class Roku:
             roku=self
         )
 
-    def bind(self, address) -> None:
-        self.address = address
-        request_url = f'{self.address}/query/device-info'
-        response = self.request.get(request_url)
-        xml = XMLFile(response.text)
-        for element in xml.find('device-info'):
-            key, value = normalize(xml, element)
-            setattr(self, key, value)
-
-    def query_apps(self) -> list:
+    def query_apps(self) -> List[Application]:
         apps = {}
         request_url = f'{self.address}/query/apps'
         response = self.request.get(request_url)
@@ -157,18 +138,6 @@ class Roku:
 
         self.key_press('power', toggle_power_mode)
 
-if __name__ == '__main__':
-    devices = discover()
-    try:
-        target = devices[0]
-        print(target.address)
-        print(target.power_mode)
-        if target.power_mode == 'PowerOn':
-            target.power()
-        print(target.active_app)
-            
-    except IndexError:
-        print("Didn't receive ip address before SSDP timeout.")
 
 
 
