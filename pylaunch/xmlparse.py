@@ -3,11 +3,13 @@ from xml.etree import ElementTree
 
 
 def normalize(xml, element):
-    key = lambda element: element.tag.replace(xml.namespace, '')
-    truther = lambda x: {'true': True, 'false': False}.get(x,x)
-    name = '_'.join(
-        sub('([a-z])([A-Z])', r'\1 \2', key(element)).split()
-    ).lower().replace('-', '_')
+    key = lambda element: element.tag.replace(xml.namespace, "")
+    truther = lambda x: {"true": True, "false": False}.get(x, x)
+    name = (
+        "_".join(sub("([a-z])([A-Z])", r"\1 \2", key(element)).split())
+        .lower()
+        .replace("-", "_")
+    )
     value = truther(element.text)
     return (name, value)
 
@@ -21,17 +23,18 @@ class XMLFile:
 
     @property
     def namespace(self):
-        m = match(r'\{.*\}', self._root.tag)
-        return m.group(0) if m else ''
+        m = match(r"\{.*\}", self._root.tag)
+        return m.group(0) if m else ""
 
     @classmethod
     def from_file(cls, path):
         raise NotImplementedError
 
     def find(self, tag_name):
-        '''Recursively loops through every item in a tree to find the
-        first element with the desired tag'''
+        """Recursively loops through every item in a tree to find the
+        first element with the desired tag"""
         tag = self.namespace + tag_name
+
         def find(element, tag):
             if element.tag != tag:
                 for el in element:
@@ -41,4 +44,5 @@ class XMLFile:
                     else:
                         continue
             return element
-        return(find(self._root,tag))
+
+        return find(self._root, tag)

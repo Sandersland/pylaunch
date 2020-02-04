@@ -13,10 +13,10 @@ class Controller:
         self._session.close()
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.address!r})'
+        return f"{self.__class__.__name__}({self.address!r})"
 
     @property
     def request(self):
-        if '_session' in dir(self):
+        if "_session" in dir(self):
             return self._session
         return requests
