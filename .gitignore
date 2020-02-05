@@ -6,3 +6,4 @@ dist/
 .noseids
 build
 .vscode
+.yaml

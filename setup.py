@@ -21,5 +21,12 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: Microsoft :: Windows :: Windows 10",
     ],
-    extras_require={"dev": ["nose==1.3.7", "twine==3.1.1"]},
+    extras_require={
+        "dev": [
+            "nose==1.3.7",
+            "twine==3.1.1",
+            "pre-commit==2.0.1",
+            "black" == "19.10b0",
+        ]
+    },
 )
