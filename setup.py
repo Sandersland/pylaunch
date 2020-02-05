@@ -5,13 +5,15 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pylaunch",
+    version="0.1.6",
+    package_dir={"": "src"},
+    packages=["pylaunch", "pylaunch.roku", "pylaunch.dial"],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=["pylaunch"],
-    version="0.1.52",
     url="https://github.com/Sandersland/pylaunch",
     author="Steffen Andersland",
     author_email="stefandersland@gmail.com",
+    license="MIT",
     keywords=["dial", "roku"],
     install_requires=["requests"],
     classifiers=[

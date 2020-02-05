@@ -1,4 +1,4 @@
-from pylaunch.dial import XMLFile
+from src.pylaunch.xmlparse import XMLFile
 from unittest import TestCase
 
 
