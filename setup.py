@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pylaunch",
-    version="0.1.6",
+    version="0.1.61",
     package_dir={"": "src"},
     packages=["pylaunch", "pylaunch.roku", "pylaunch.dial"],
     long_description=long_description,
@@ -22,11 +22,6 @@ setup(
         "Operating System :: Microsoft :: Windows :: Windows 10",
     ],
     extras_require={
-        "dev": [
-            "nose==1.3.7",
-            "twine==3.1.1",
-            "pre-commit==2.0.1",
-            "black" == "19.10b0",
-        ]
+        "dev": ["nose==1.3.7", "twine==3.1.1", "pre-commit==2.0.1", "black==19.10b0",]
     },
 )

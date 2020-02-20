@@ -1,7 +1,12 @@
 import requests
+from urllib.parse import urlparse
 
 
 class Controller:
+    def __init__(self, address):
+        parsed_url = urlparse(address)
+        self.address = f"http://{parsed_url.netloc}"
+
     def __getitem__(self, prop):
         return self.__getattribute__(prop)
 
@@ -16,7 +21,7 @@ class Controller:
         return f"{self.__class__.__name__}({self.address!r})"
 
     @property
-    def request(self):
+    def request(self) -> requests:
         if "_session" in dir(self):
             return self._session
         return requests

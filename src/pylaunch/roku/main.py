@@ -1,4 +1,5 @@
-from typing import Callable, List
+from __future__ import annotations
+from typing import Callable, List, Dict
 
 from pylaunch.core import Controller
 from pylaunch.ssdp import ST_ROKU, SimpleServiceDiscoveryProtocol
@@ -6,7 +7,9 @@ from pylaunch.xmlparse import XMLFile, normalize
 
 
 class Application:
-    def __init__(self, name, id, type, subtype, version, roku):
+    def __init__(
+        self, name: str, id: str, type: str, subtype: str, version: str, roku: Roku
+    ):
         self.name = name
         self.id = id
         self.type = type
@@ -28,12 +31,13 @@ class Application:
         return super().__getattribute__(name)
 
     @property
-    def icon(self):
+    def icon(self) -> Dict[str, str]:
         request_url = f"{self.roku.address}/query/icon/{self.id}"
-        response = self.request.get(request_url, stream=True)
+        response = self.roku.request.get(request_url, stream=True)
         if str(response.headers["Content-Length"]) != "0":
             filetype = response.headers["Content-Type"].split("/")[-1]
             return {"content": response.content, "filetype": filetype}
+        return {"content": "", "filetype": ""}
 
     def launch(self, callback: Callable[[None], dict] = None, **kwargs) -> None:
         request_url = f"{self.roku.address}/launch/{self.id}"
@@ -45,38 +49,33 @@ class Application:
             callback(results)
 
 
-def discover(timeout: int = 3) -> List["Roku"]:
-    """
-    Scans the network for roku devices.
-    """
-    results = []
-    SimpleServiceDiscoveryProtocol.settimeout(timeout)
-    ssdp = SimpleServiceDiscoveryProtocol(ST_ROKU)
-    response = ssdp.broadcast()
-    for resp in response:
-        location = resp.headers.get("location")
-        if not location:
-            continue
-        results.append(Roku(location))
-    return results
-
-
 class Roku(Controller):
-    def __init__(self, address: str):
-        self.bind(address)
-        self.apps = self.query_apps()
+    def __getitem__(self, key):
+        if key in self.info:
+            return self.info.get(key)
+        elif key in self.apps:
+            return self.apps.get(key)
+        else:
+            raise AttributeError(key)
 
-    def bind(self, address: str) -> None:
-        self.address = address
-        request_url = f"{self.address}/query/device-info"
-        response = self.request.get(request_url)
-        xml = XMLFile(response.text)
-        for element in xml.find("device-info"):
-            key, value = normalize(xml, element)
-            setattr(self, key, value)
+    @classmethod
+    def discover(cls, timeout: int = 3) -> List[Roku]:
+        """
+        Scans the network for roku devices.
+        """
+        results = []
+        SimpleServiceDiscoveryProtocol.settimeout(timeout)
+        ssdp = SimpleServiceDiscoveryProtocol(ST_ROKU)
+        response = ssdp.broadcast()
+        for resp in response:
+            location = resp.headers.get("location")
+            if not location:
+                continue
+            results.append(cls(location))
+        return results
 
     @property
-    def active_app(self):
+    def active_app(self) -> Application:
         request_url = f"{self.address}/query/active-app"
         response = self.request.get(request_url)
         xml = XMLFile(response.text)
@@ -90,8 +89,9 @@ class Roku(Controller):
             roku=self,
         )
 
-    def query_apps(self) -> List[Application]:
-        apps = {}
+    @property
+    def apps(self) -> Dict[str, Application]:
+        applications = {}
         request_url = f"{self.address}/query/apps"
         response = self.request.get(request_url)
         xml = XMLFile(response.text)
@@ -104,10 +104,21 @@ class Roku(Controller):
                 version=element.attrib.get("version"),
                 roku=self,
             )
-            apps[app.name] = app
-        return apps
+            applications[app.name] = app
+        return applications
 
-    def install(self, id: str, **kwargs) -> None:
+    @property
+    def info(self) -> Dict[str, [str, bool]]:
+        device_info = {}
+        request_url = f"{self.address}/query/device-info"
+        response = self.request.get(request_url)
+        xml = XMLFile(response.text)
+        for element in xml.find("device-info"):
+            key, value = normalize(xml, element)
+            device_info[key] = value
+        return device_info
+
+    def install_app(self, id: str, **kwargs) -> None:
         request_url = f"{self.address}/install/{str(id)}"
         response = self.request.post(
             request_url, params=kwargs, headers={"Content-Length": "0"}
@@ -120,7 +131,7 @@ class Roku(Controller):
             results = {"request_url": request_url, "status_code": response.status_code}
             callback(results)
 
-    def power(self):
+    def power(self) -> None:
         power_modes = {"PowerOn": "Headless", "Headless": "PowerOn"}
         toggle_power_mode = (
             lambda x: setattr(self, "power_mode", power_modes[self.power_mode])

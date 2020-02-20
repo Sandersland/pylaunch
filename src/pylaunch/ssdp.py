@@ -34,6 +34,9 @@ class SimpleServiceDiscoveryProtocol:
                     break
         return results
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.st!r})"
+
     @classmethod
     def settimeout(cls, timeout):
         if not isinstance(timeout, (int, float)):

@@ -1,1 +1,1 @@
-from pylaunch.roku.main import Roku, discover
+from pylaunch.roku.main import Roku

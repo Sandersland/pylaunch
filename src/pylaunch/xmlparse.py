@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 
 def normalize(xml, element):
     key = lambda element: element.tag.replace(xml.namespace, "")
-    truther = lambda x: {"true": True, "false": False}.get(x, x)
+    truther = lambda x: {"true": True, "false": False, "\n": None}.get(x, x)
     name = (
         "_".join(sub("([a-z])([A-Z])", r"\1 \2", key(element)).split())
         .lower()
@@ -32,7 +32,7 @@ class XMLFile:
 
     def find(self, tag_name):
         """Recursively loops through every item in a tree to find the
-        first element with the desired tag"""
+        first element with the desired tag name."""
         tag = self.namespace + tag_name
 
         def find(element, tag):

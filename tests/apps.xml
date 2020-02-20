@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<apps>
+	<app id="31012" type="menu" version="1.9.32">FandangoNOW Movies &amp; TV</app>
+	<app id="12" subtype="ndka" type="appl" version="5.0.81121038">Netflix</app>
+	<app id="13" subtype="ndka" type="appl" version="10.6.2018112314">Prime Video</app>
+	<app id="2285" subtype="rsga" type="appl" version="6.13.2">Hulu</app>
+	<app id="46041" subtype="ndka" type="appl" version="6.9.224">Sling TV</app>
+	<app id="8838" subtype="rsga" type="appl" version="2.10.8">SHOWTIME</app>
+	<app id="151908" subtype="rsga" type="appl" version="2.0.19">The Roku Channel</app>
+	<app id="61322" subtype="rsga" type="appl" version="4.6.217">HBO NOW</app>
+	<app id="13842" subtype="ndka" type="appl" version="1.3.258338">VUDU</app>
+	<app id="50025" subtype="rsga" type="appl" version="2.0.20181204">Google Play Movies &amp; TV</app>
+	<app id="2213" subtype="sdka" type="appl" version="4.2.1657">Roku Media Player</app>
+	<app id="140474" subtype="rsga" type="appl" version="2.26.609">AT&amp;T TV</app>
+	<app id="552944" subtype="rsga" type="appl" version="1.2.51">Roku Tips &amp; Tricks</app>
+	<app id="184661" subtype="sdka" type="appl" version="1.0.38">Roku Streaming Player Intro</app>
+	<app id="837" subtype="ndka" type="appl" version="1.0.80000286">YouTube</app>
+	<app id="34376" subtype="rsga" type="appl" version="2.6.2019042400">ESPN</app>
+	<app id="20454" subtype="rsga" type="appl" version="3.16.11129">FOX NOW</app>
+	<app id="140481" subtype="rsga" type="appl" version="7.4.15">CBS 7</app>
+	<app id="63398" subtype="rsga" type="appl" version="2.11.1559791735">ABC10</app>
+	<app id="68669" subtype="rsga" type="appl" version="7.0.0">NBC</app>
+	<app id="19977" subtype="ndka" type="appl" version="2.7.16">Spotify Music</app>
+	<app id="41468" subtype="rsga" type="appl" version="2.9.4">Tubi - Free Movies &amp; TV</app>
+	<app id="296436" subtype="rsga" type="appl" version="1.0.1">Nature HD Photobook</app>
+	<app id="31440" subtype="rsga" type="appl" version="3.1.20200116">CBS All Access</app>
+	<app id="291097" subtype="rsga" type="appl" version="1.2.2020012800">Disney Plus</app>
+</apps>
