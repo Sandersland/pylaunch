@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?><service dialVer="2.1" xmlns="urn:dial-multiscreen-org:schemas:dial">
+	<name>YouTube</name>
+	<options allowStop="true"/>
+	<state>stopped</state>
+</service>

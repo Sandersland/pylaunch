@@ -2,19 +2,20 @@ import socket
 from struct import pack
 from json import dumps
 
+ST_ALL = "ssdp:all"
 ST_ROKU = "roku:ecp"
 ST_DIAL = "urn:dial-multiscreen-org:service:dial:1"
-__DEFAULT_TIMEOUT__ = 1
 
 
 class SimpleServiceDiscoveryProtocol:
-
-    TIMEOUT = __DEFAULT_TIMEOUT__
-
-    def __init__(self, st):
+    def __init__(self, st, timeout=1):
         self.st = st
-        self.timeout = SimpleServiceDiscoveryProtocol.TIMEOUT
-        self.message = DiscoveryMessage(self.st)
+        self._timeout = timeout
+        self.message = DiscoveryMessage(self.st, self._timeout)
+
+    @property
+    def timeout(self):
+        return self._timeout
 
     def broadcast(self) -> list:
         ttl = pack("b", 1)
@@ -37,24 +38,23 @@ class SimpleServiceDiscoveryProtocol:
     def __repr__(self):
         return f"{self.__class__.__name__}({self.st!r})"
 
-    @classmethod
-    def settimeout(cls, timeout):
+    def settimeout(self, timeout):
         if not isinstance(timeout, (int, float)):
             raise ValueError(
                 f"timeout must be of type int or float and not {type(timeout)}."
             )
-        cls.TIMEOUT = timeout
+        self._timeout = timeout
 
 
 class DiscoveryMessage(str):
 
     DISCOVER_GROUP = ("239.255.255.250", 1900)
 
-    def __new__(cls, st):
+    def __new__(cls, st, timeout):
         MESSAGE_CONFIG = {
             "HOST": "%s:%s" % cls.DISCOVER_GROUP,
             "ST": st,
-            "MX": SimpleServiceDiscoveryProtocol.TIMEOUT,
+            "MX": timeout,
             "MAN": "ssdp:discover",
         }
 

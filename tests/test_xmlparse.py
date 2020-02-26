@@ -1,10 +1,10 @@
 from pylaunch.xmlparse import XMLFile, normalize
-from unittest import TestCase
+import unittest
 
 
-class test_XMLFile(TestCase):
+class test_XMLFile(unittest.TestCase):
     def setUp(self):
-        with open("tests\example.xml", "r") as file:
+        with open("tests/xml/example.xml", "r") as file:
             filestring = file.read()
             self.xml = XMLFile(filestring)
 

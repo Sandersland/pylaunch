@@ -1,8 +1,8 @@
-from unittest import TestCase
+import unittest
 from pylaunch.ssdp import SimpleServiceDiscoveryProtocol, ST_ROKU, DiscoveryMessage
 
 
-class TestSimpleServiceDiscoveryProtocol(TestCase):
+class TestSimpleServiceDiscoveryProtocol(unittest.TestCase):
     def setUp(self):
         self.ssdp = SimpleServiceDiscoveryProtocol(ST_ROKU)
 
@@ -10,15 +10,14 @@ class TestSimpleServiceDiscoveryProtocol(TestCase):
         self.assertEqual(repr(self.ssdp), "SimpleServiceDiscoveryProtocol('roku:ecp')")
 
     def test_default_timout(self):
-        SimpleServiceDiscoveryProtocol.settimeout(1)
         self.assertEqual(self.ssdp.timeout, 1)
 
     def test_timeout(self):
-        SimpleServiceDiscoveryProtocol.settimeout(3)
         ssdp = SimpleServiceDiscoveryProtocol(ST_ROKU)
+        ssdp.settimeout(3)
         self.assertEqual(ssdp.timeout, 3)
         with self.assertRaises(ValueError):
-            SimpleServiceDiscoveryProtocol.settimeout("string")
+            ssdp.settimeout("string")
 
     def test_broadcast(self):
         result = self.ssdp.broadcast()

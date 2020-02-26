@@ -1,1 +1,1 @@
-from pylaunch.dial.main import Dial, discover
+from pylaunch.dial.main import Dial

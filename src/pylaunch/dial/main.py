@@ -1,4 +1,5 @@
-from typing import List, Callable
+from __future__ import annotations
+from typing import List, Dict, Callable
 from re import sub
 from urllib.parse import unquote, urlencode
 
@@ -6,61 +7,36 @@ from requests import Response
 
 from pylaunch.core import Controller
 from pylaunch.ssdp import SimpleServiceDiscoveryProtocol, ST_DIAL
-from pylaunch.xmlparse import XMLFile
+from pylaunch.xmlparse import XMLFile, normalize
 
 
 class AppNotFoundError(Exception):
     pass
 
 
-def discover(timeout: int = 3) -> List["Dial"]:
-    """
-    Scans network for dial compatible devices and returns a list.
-    """
-    results = []
-    SimpleServiceDiscoveryProtocol.settimeout(timeout)
-    ssdp = SimpleServiceDiscoveryProtocol(ST_DIAL)
-    response = ssdp.broadcast()
-    for resp in response:
-        location = resp.headers.get("location")
-        if not location:
-            continue
-        results.append(Dial(location))
-    return results
-
-
 class Dial(Controller):
-    def __init__(self, address: str):
-        self.bind(address)
-        self.instance_url = None
-        self.refresh_url = None
-
-    def __str__(self):
-        return f"{self.friendly_name} ({self.address})"
-
-    def bind(self, address: str) -> None:
+    @classmethod
+    def discover(cls, timeout: int = 3) -> List[Dial]:
         """
-        A function called on __init__ to bind to a specific device.
+        Scans network for dial compatible devices and returns a list.
         """
-        resp = self.request.get(address)
-        self.address = resp.headers.get("Application-URL")
-        xml = XMLFile(resp.text)
-        key = (
-            lambda element: "_".join(sub("([a-z])([A-Z])", r"\1 \2", element).split())
-            .lower()
-            .replace("-", "_")
-        )
-        value = lambda element: xml.find(element).text
-        tag_name = lambda element: element.tag.replace(xml.namespace, "")
+        results = []
+        ssdp = SimpleServiceDiscoveryProtocol(ST_DIAL)
+        ssdp.settimeout(timeout)
+        response = ssdp.broadcast()
+        for resp in response:
+            location = resp.headers.get("location")
+            if not location:
+                continue
+            results.append(cls(location))
+        return results
 
-        for element in [tag_name(el) for el in xml.find("device")]:
-            try:
-                k = key(element)
-                v = value(element)
-            except TypeError as e:
-                print(e)
-            finally:
-                setattr(self, k, v) if v != "\n" else None
+    @classmethod
+    def from_xml(cls, xml_text) -> Dial:
+        xml = XMLFile(xml_text)
+        for element in xml.find("device"):
+            key, value = normalize(xml, element)
+            setattr(cls, key, value) if value else None
 
     def _build_app_url(self, app_name: str = None) -> str:
         """
@@ -114,7 +90,7 @@ class Dial(Controller):
             raise Exception(f"There is no running {app_name} instance.")
         callback(resp) if callback else None
 
-    def get_app_status(self, app_name: str) -> dict:
+    def get_app_status(self, app_name: str) -> Dict[str, str]:
         """
         Makes a request to the DIAL device with a application name parameter and returns
         a dictionary including the supported DIAL version, app name and state.
@@ -130,17 +106,3 @@ class Dial(Controller):
             "name": xml.find("name").text,
             "state": xml.find("state").text,
         }
-
-    def refresh_instance(self, inplace: bool = False) -> str:
-        """
-        Makes a request using the refresh_url stored in the instance
-        of this class.
-        """
-        if not self.refresh_url:
-            raise Exception("No refresh_url found in the dial instance.")
-        resp = self.request.post(self.refresh_url)
-        instance_url = resp.headers.get("location")
-        if inplace:
-            self.instance_url = instance_url
-        else:
-            return instance_url

@@ -64,8 +64,8 @@ class Roku(Controller):
         Scans the network for roku devices.
         """
         results = []
-        SimpleServiceDiscoveryProtocol.settimeout(timeout)
         ssdp = SimpleServiceDiscoveryProtocol(ST_ROKU)
+        ssdp.settimeout(3)
         response = ssdp.broadcast()
         for resp in response:
             location = resp.headers.get("location")
