@@ -132,11 +132,4 @@ class Roku(Controller):
             callback(results)
 
     def power(self) -> None:
-        power_modes = {"PowerOn": "Headless", "Headless": "PowerOn"}
-        toggle_power_mode = (
-            lambda x: setattr(self, "power_mode", power_modes[self.power_mode])
-            if x["status_code"] == 200
-            else None
-        )
-
-        self.key_press("power", toggle_power_mode)
+        self.key_press("power")
