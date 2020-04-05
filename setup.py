@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pylaunch",
-    version="0.1.63",
+    version="0.2.0",
     package_dir={"": "src"},
     packages=["pylaunch", "pylaunch.roku", "pylaunch.dial"],
     long_description=long_description,
