@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Callable, List, Dict
+from urllib.parse import quote
 
 from pylaunch.core import Controller
 from pylaunch.ssdp import ST_ROKU, SimpleServiceDiscoveryProtocol
@@ -130,6 +131,13 @@ class Roku(Controller):
         if callback:
             results = {"request_url": request_url, "status_code": response.status_code}
             callback(results)
+
+    def type_char(self, char: str) -> None:
+        prepared_char = f"Lit_{quote(char)}"
+        self.key_press(prepared_char)
+
+    def type_literal(self, value: str) -> None:
+        [self.type_char(char) for char in value]
 
     def power(self) -> None:
         self.key_press("power")
