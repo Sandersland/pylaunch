@@ -21,11 +21,12 @@ disney_plus.launch()
 ### Basic Remote Control
 ```python
 from pylaunch.roku import Roku
+from pylaunch import roku
 d = Roku('192.168.0.3')
 d.power()
-d.key_press('Right')
-d.key_press('Down')
-d.key_press('Select')
+d.key_press(roku.RIGHT)
+d.key_press(roku.DOWN)
+d.key_press(roku.SELECT)
 ```
 
 ### Discover DIAL devices and launch YouTube to specific video

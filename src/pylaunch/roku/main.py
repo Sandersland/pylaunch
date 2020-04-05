@@ -42,7 +42,7 @@ class Application:
 
     def launch(self, callback: Callable[[None], dict] = None, **kwargs) -> None:
         request_url = f"{self.roku.address}/launch/{self.id}"
-        response = self.request.post(
+        response = self.roku.request.post(
             request_url, params=kwargs, headers={"Content-Length": "0"}
         )
         if callback:
