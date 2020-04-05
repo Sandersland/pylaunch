@@ -1,6 +1,6 @@
 from pylaunch.roku.main import Roku
 
-# Psossible keypress values
+# Possible keypress values
 HOME = "Home"
 REVERSE = "Rev"
 FORWARD = "Fwd"
@@ -16,3 +16,11 @@ INFO = "Info"
 BACKSPACE = "Backspace"
 SEARCH = "Search"
 Enter = "Enter"
+POWER = "Power"
+POWER_ON = "PowerOn"
+POWER_OFF = "PowerOn"
+VOLUME_UP = "VolumeUp"
+VOLUME_DOWN = "VolumeDown"
+MUTE = "VolumeMute"
+CHANNEL_UP = "ChannelUp"
+CHANNEL_DOWN = "ChannelDown"
