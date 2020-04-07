@@ -1,14 +1,15 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 
 from requests import Response
 
 from pylaunch.roku import Roku
 from pylaunch.ssdp import HTTPResponse
+from pylaunch import roku
 
 
 class TestRoku(unittest.TestCase):
-    @patch("pylaunch.core.requests.get")
+    @patch("requests.get")
     def setUp(self, response):
         with open("tests/xml/example.xml") as f:
             response.return_value = MagicMock(spec=Response, headers={}, text=f.read())
@@ -16,6 +17,38 @@ class TestRoku(unittest.TestCase):
 
     def test_address(self):
         self.assertEqual(self.roku.address, "http://10.1.10.165:8060")
+
+    @patch("requests.post")
+    def test_key_press(self, mock_post):
+        self.roku.key_press("Up")
+        mock_post.assert_called_with(f"{self.roku.address}/keypress/Up")
+
+    @patch("requests.post")
+    def test_install_app(self, mock_post):
+        self.roku.install_app(1234)
+        mock_post.assert_called_with(
+            f"{self.roku.address}/install/1234",
+            headers={"Content-Length": "0"},
+            params={},
+        )
+
+    @patch("requests.post")
+    def test_type_char_urlsafe(self, mock_post):
+        self.roku.type_char("a")
+        mock_post.assert_called_with(f"{self.roku.address}/keypress/Lit_a")
+
+    @patch("requests.post")
+    def test_type_char_not_urlsafe(self, mock_post):
+        self.roku.type_char("\\")
+        mock_post.assert_called_with(f"{self.roku.address}/keypress/Lit_%5C")
+
+    @patch("pylaunch.roku.Roku.type_char")
+    def test_type_literal(self, mock_method):
+        literal_string = "aasd"
+        self.roku.type_literal(literal_string)
+        self.assertEqual(mock_method.call_count, 4)
+        for i, value in enumerate(mock_method.call_args_list):
+            self.assertEqual(value, call(literal_string[i]))
 
     def test_device_type(self):
         self.assertEqual(self.roku.device_type, "urn:roku-com:device:player:1-0")
