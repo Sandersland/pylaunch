@@ -47,7 +47,7 @@ class TestRoku(unittest.TestCase):
     @patch("pylaunch.roku.Roku.key_press")
     def test_power(self, mock_method):
         self.roku.power()
-        mock_method.assert_called_with("Power")
+        mock_method.assert_called_with(roku.POWER)
 
     @patch("pylaunch.roku.Roku.type_char")
     def test_type_literal(self, mock_method):
@@ -98,7 +98,6 @@ class TestRoku(unittest.TestCase):
         roku_info = self.roku.info
         self.assertIsInstance(roku_info, dict)
         self.assertTrue("power_mode" in roku_info)
-        self.assertFalse("asdvd137sdf" in roku_info)
 
     @patch("pylaunch.core.requests.get")
     def test_apps(self, response):
@@ -155,14 +154,25 @@ class TestApplication(unittest.TestCase):
         self.assertIsInstance(self.app.roku, Roku)
 
     @patch("requests.get")
-    def test_icon(self, request_get):
+    def test_icon(self, mock_get):
         self.app.icon
-        request_get.assert_called_with(
-            f"{self.roku.address}/query/icon/{self.app.id}", stream=True
+        mock_get.assert_called_with(
+            f"{self.app.roku.address}/query/icon/{self.app.id}", stream=True
         )
 
-    def test_launch(self):
-        pass
+    def test_icon_without_device_raises_exc(self):
+        app = deepcopy(self.app)
+        app.roku = None
+        with self.assertRaises(DeviceUnspecifiedException):
+            app.icon
+
+    @patch("requests.post")
+    def test_launch(self, mock_post):
+        self.app.launch()
+        mock_post.assert_called_with(
+            f"{self.app.roku.address}/launch/{self.app.id}",
+            headers={"Content-Length": "0"},
+        )
 
     def test_launch_without_device_raises_exc(self):
         app = deepcopy(self.app)

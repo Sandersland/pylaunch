@@ -1,10 +1,36 @@
 from __future__ import annotations
+from enum import Enum
 from typing import Callable, List, Dict
 from urllib.parse import quote
 
 from pylaunch.core import Controller
 from pylaunch.ssdp import ST_ROKU, SimpleServiceDiscoveryProtocol
 from pylaunch.xmlparse import XMLFile, normalize
+
+
+HOME = "Home"
+REVERSE = "Rev"
+FORWARD = "Fwd"
+PLAY = "Play"
+SELECT = "Select"
+LEFT = "Left"
+RIGHT = "Right"
+DOWN = "Down"
+UP = "Up"
+BACK = "Back"
+INSTANT_REPLAY = "InstantReplay"
+INFO = "Info"
+BACKSPACE = "Backspace"
+SEARCH = "Search"
+Enter = "Enter"
+POWER = "Power"
+POWER_ON = "PowerOn"
+POWER_OFF = "PowerOn"
+VOLUME_UP = "VolumeUp"
+VOLUME_DOWN = "VolumeDown"
+MUTE = "VolumeMute"
+CHANNEL_UP = "ChannelUp"
+CHANNEL_DOWN = "ChannelDown"
 
 
 class DeviceUnspecifiedException(Exception):
@@ -37,6 +63,10 @@ class Application:
 
     @property
     def icon(self) -> Dict[str, str]:
+        if not self.roku:
+            raise DeviceUnspecifiedException(
+                "No device specified to launch the app to."
+            )
         request_url = f"{self.roku.address}/query/icon/{self.id}"
         response = self.roku.request.get(request_url, stream=True)
         if str(response.headers["Content-Length"]) != "0":
@@ -44,15 +74,13 @@ class Application:
             return {"content": response.content, "filetype": filetype}
         return {"content": "", "filetype": ""}
 
-    def launch(self, callback: Callable[[None], dict] = None, **kwargs) -> None:
+    def launch(self, callback: Callable[[None], dict] = None) -> None:
         if not self.roku:
             raise DeviceUnspecifiedException(
                 "No device specified to launch the app to."
             )
         request_url = f"{self.roku.address}/launch/{self.id}"
-        response = self.roku.request.post(
-            request_url, params=kwargs, headers={"Content-Length": "0"}
-        )
+        response = self.roku.request.post(request_url, headers={"Content-Length": "0"})
         if callback:
             results = {"request_url": request_url, "status_code": response.status_code}
             callback(results)
@@ -148,4 +176,4 @@ class Roku(Controller):
         [self.type_char(char) for char in value]
 
     def power(self) -> None:
-        self.key_press("Power")
+        self.key_press(POWER)
