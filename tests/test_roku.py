@@ -1,18 +1,20 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
+from copy import deepcopy
 
 from requests import Response
 
 from pylaunch.roku import Roku
+from pylaunch.roku.main import Application, DeviceUnspecifiedException
 from pylaunch.ssdp import HTTPResponse
 from pylaunch import roku
 
 
 class TestRoku(unittest.TestCase):
     @patch("requests.get")
-    def setUp(self, response):
+    def setUp(self, mock_get):
         with open("tests/xml/example.xml") as f:
-            response.return_value = MagicMock(spec=Response, headers={}, text=f.read())
+            mock_get.return_value = MagicMock(spec=Response, headers={}, text=f.read())
         self.roku = Roku("https://10.1.10.165:8060")
 
     def test_address(self):
@@ -39,8 +41,13 @@ class TestRoku(unittest.TestCase):
 
     @patch("requests.post")
     def test_type_char_not_urlsafe(self, mock_post):
-        self.roku.type_char("\\")
-        mock_post.assert_called_with(f"{self.roku.address}/keypress/Lit_%5C")
+        self.roku.type_char("|")
+        mock_post.assert_called_with(f"{self.roku.address}/keypress/Lit_%7C")
+
+    @patch("pylaunch.roku.Roku.key_press")
+    def test_power(self, mock_method):
+        self.roku.power()
+        mock_method.assert_called_with("Power")
 
     @patch("pylaunch.roku.Roku.type_char")
     def test_type_literal(self, mock_method):
@@ -104,19 +111,61 @@ class TestRoku(unittest.TestCase):
         self.assertTrue("Netflix" in apps)
         self.assertFalse("asdasdasd" in apps)
 
-    @patch("pylaunch.core.requests.get")
+    @patch("requests.get")
     def test_active_app(self, response):
         with open("tests/xml/active-app.xml") as f:
             response.return_value.text = f.read()
         app = self.roku.active_app
         self.assertTrue(app.name == "Roku")
+        self.assertIsInstance(app, Application)
 
-    @patch("src.pylaunch.ssdp.SimpleServiceDiscoveryProtocol.broadcast")
-    def test_discover(self, response):
+    @patch("pylaunch.ssdp.SimpleServiceDiscoveryProtocol.broadcast")
+    def test_discover(self, mock_broadcast):
         message = MagicMock(
             spec=HTTPResponse, headers={"location": "http://192.168.1.1"}
         )
-        response.return_value = [message]
+        mock_broadcast.return_value = [message]
         devices = Roku.discover()
         self.assertIsInstance(devices, list)
         [self.assertIsInstance(x, Roku) for x in devices]
+
+
+class TestApplication(unittest.TestCase):
+    @patch("requests.get")
+    def setUp(self, mock_get):
+        with open("tests/xml/example.xml") as f:
+            mock_get.return_value = MagicMock(spec=Response, headers={}, text=f.read())
+            self.roku = Roku("https://10.1.10.165:8060")
+
+            self.app = Application(
+                name="Fake Application",
+                id=123,
+                type="faketype",
+                subtype="is not real",
+                version="abc",
+                roku=self.roku,
+            )
+
+    def test_app_init(self):
+        self.assertEqual(self.app.name, "Fake Application")
+        self.assertEqual(self.app.id, 123)
+        self.assertEqual(self.app.subtype, "is not real")
+        self.assertEqual(self.app.type, "faketype")
+        self.assertEqual(self.app.version, "abc")
+        self.assertIsInstance(self.app.roku, Roku)
+
+    @patch("requests.get")
+    def test_icon(self, request_get):
+        self.app.icon
+        request_get.assert_called_with(
+            f"{self.roku.address}/query/icon/{self.app.id}", stream=True
+        )
+
+    def test_launch(self):
+        pass
+
+    def test_launch_without_device_raises_exc(self):
+        app = deepcopy(self.app)
+        app.roku = None
+        with self.assertRaises(DeviceUnspecifiedException):
+            app.launch()

@@ -7,6 +7,10 @@ from pylaunch.ssdp import ST_ROKU, SimpleServiceDiscoveryProtocol
 from pylaunch.xmlparse import XMLFile, normalize
 
 
+class DeviceUnspecifiedException(Exception):
+    pass
+
+
 class Application:
     def __init__(
         self, name: str, id: str, type: str, subtype: str, version: str, roku: Roku
@@ -41,6 +45,10 @@ class Application:
         return {"content": "", "filetype": ""}
 
     def launch(self, callback: Callable[[None], dict] = None, **kwargs) -> None:
+        if not self.roku:
+            raise DeviceUnspecifiedException(
+                "No device specified to launch the app to."
+            )
         request_url = f"{self.roku.address}/launch/{self.id}"
         response = self.roku.request.post(
             request_url, params=kwargs, headers={"Content-Length": "0"}
@@ -140,4 +148,4 @@ class Roku(Controller):
         [self.type_char(char) for char in value]
 
     def power(self) -> None:
-        self.key_press("power")
+        self.key_press("Power")
