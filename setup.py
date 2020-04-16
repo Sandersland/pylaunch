@@ -24,4 +24,5 @@ setup(
     extras_require={
         "dev": ["nose==1.3.7", "twine==3.1.1", "pre-commit==2.0.1", "black==19.10b0",]
     },
+    entry_points={"console_scripts": ["roku=pylaunch.roku.remote:main"]},
 )
