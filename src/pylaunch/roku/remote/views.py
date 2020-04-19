@@ -1,5 +1,7 @@
-import threading
 import tkinter as tk
+from queue import Queue
+from threading import Thread
+from functools import wraps
 
 from pylaunch import roku
 from pylaunch.roku.remote.buttons import RokuActionButton, RokuApplicationButton
@@ -11,17 +13,24 @@ PADDING_Y = "1m"
 SELECT_BG = "black"
 SELECT_FG = "green"
 
-def threader(func, *args):
-        thread = threading.Thread(target=func, args=args)
+
+def threaded(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        thread = Thread(target=func, args=args)
+        thread.setDaemon(True)
         thread.start()
+
+    return wrapped
 
 
 class Remote:
     def __init__(self, root):
-        
+        self._keypress_queue = Queue()
+        self.state = ApplicationState()
         self.option_select = tk.Listbox(
             root,
-            relief="sunken",
+            relief=tk.SUNKEN,
             exportselection=False,
             bg=SELECT_BG,
             fg=SELECT_FG,
@@ -29,32 +38,41 @@ class Remote:
             width=SELECT_WIDTH,
             height=SELECT_HEIGHT,
         )
-        state = ApplicationState(self.option_select)
+        self.state.set_selector(self.option_select)
 
         self.option_select.pack(anchor=tk.CENTER)
-        self.option_select.bind("<<ListboxSelect>>", lambda event: threader(state.select_device, event))
-        root.bind("<Key>", lambda event: threader(self.key_press, state.selected, event))
+        self.option_select.bind("<<ListboxSelect>>", self.state.select_device)
 
-        threader(state.update_options)
+        root.bind("<Key>", self.key_press)
 
-        self.menu = ButtonMenu(root, state, relief="flat", borderwidth=4)
+        self.state.update_options()
+
+        self.menu = ButtonMenu(root, self.state, relief=tk.FLAT, borderwidth=4)
         self.menu.pack()
 
-    def key_press(self, device, e=None):
-        char = e.char
+    def key_press(self, e=None):
+        device = self.state.selected
+        self._keypress_queue.put(e.char)
         if device:
-            device.type_char(char)
-            print(char)
+            thread = Thread(
+                target=device.type_char, args=(self._keypress_queue.get()), daemon=True
+            )
+            thread.start()
+            print(f"pressed {e.char}")
         else:
             print("Please select a device.")
 
 
 class ApplicationState:
-    def __init__(self, selector, options=None):
+    def __init__(self, selector=None, options=None):
         self.selector = selector
         self.options = options if options else []
         self.selected = None
 
+    def set_selector(self, selector):
+        self.selector = selector
+
+    @threaded
     def update_options(self):
         print("discovering devices...")
         self.options = roku.Roku.discover()
@@ -69,13 +87,17 @@ class ApplicationState:
     def select_device(self, event=None):
         now = self.selector.curselection()
         if now != self.selected:
-            self.selected = self.options[now[0]]
-        print(self.selected)
+            try:
+                self.selected = self.options[now[0]]
+                print(self.selected)
+            except IndexError as e:
+                print("We are still looking for devices.")
 
 
 class ButtonMenu(tk.Frame):
     def __init__(self, root, state, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
+        self._button_pressed_queue = Queue()
         self.state = state
 
         self.home = RokuActionButton(self, action=roku.HOME)
